@@ -16,16 +16,10 @@ library(officer)
 library(jsonlite)
 library(dplyr)
 library(stringr)
-library(crosstable)
 
 ################################################################################
 #                               Conversion Function                            #
 ################################################################################
-
-files <- list.files(directory_path, full.names = TRUE)
-jsons <- files[grepl(".json",files)]
-
-json_path <- jsons[1]
 
 json_to_doc <- function(json_path){
   
@@ -56,7 +50,7 @@ json_to_doc <- function(json_path){
           body_add_par("", style = "Normal")
         
       }
-
+      
     } else {
       
       # Otherwise treat as regular paragraph
@@ -72,8 +66,17 @@ json_to_doc <- function(json_path){
   
 }
 
-json_to_doc(json_path)
 
+################################################################################
+#                                        Run                                   #
+################################################################################
 
+articles <- list.files(directory_path, full.names = TRUE)
+articles <- articles[grepl(".json",articles)]
 
+for(article in articles){
+  
+  json_to_doc(article)
+  
+}
 
