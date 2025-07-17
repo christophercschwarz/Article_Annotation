@@ -11,12 +11,13 @@
 #             5) Findings                                                      #
 #          Note: this requires a recent install of Ollama as well as Qwen3     #
 #          Note: updated to encourage list-style hypotheses                    #
+# 07/16/2025: Updated to include title extraction, minor cleaning/corrections  #
 ################################################################################
 
 # Input: Directory of pdfs to be summarized (i.e. article1.pdf, article2.pdf)
 # Output: .json summaries of the pdfs in the same directory (i.e. article1.json)
 
-directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_15"
+directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16"
 
 ################################################################################
 #                               Required Packages                              #
@@ -28,6 +29,7 @@ import time
 import contextlib
 import io
 import re
+import os
 import json
 from collections import defaultdict
 
@@ -149,14 +151,16 @@ def summarize_structured(text, model="qwen3:0.6b", max_tokens=32768):
     """
     json_prompt_template = (
         "You are a research assistant. From the following academic article, extract a structured summary covering these fields.\n"
+        "- title: The title of the academic article."
         "- research_questions: What research questions are the authors addressing?\n"
-        "- hypotheses: What hypotheses do they propose?\n"
+        "- hypotheses: What hypotheses do they formally propose?\n"
         "- data: Describe the data used in the analysis (years, geography, unit of analysis, dataset size, sources).\n"
         "- methods: Describe the statistical methods used and design decisions such as control variables.\n"
         "- findings: What did the authors find? What resuslts do they discuss?\n\n"
         "When writing each field, ensure:\n"
+        "- title is the exact title of the article."
         "- research_questions contains exact or paraphrased questions from the introduction or abstract.\n"
-        "- hypotheses only includes explicit predictions or testable claims. If none are stated, return an empty string.\n"
+        "- hypotheses only includes explicit predictions or testable claims declared as hypotheses to be tested. If none are stated, return an empty string.\n"
         "- data lists year(s), platform, dataset size, unit of analysis, and source, if stated.\n"
         "- methods describes actual models and metrics used (e.g., linear regression, GAMLSS, support vector machines, diffusion trees, structural virality, depth).\n"
         "- findings are only drawn from the Results or Discussion. Do not invent findings.\n\n"
@@ -178,7 +182,8 @@ def summarize_structured(text, model="qwen3:0.6b", max_tokens=32768):
         "DO NOT include any content from the example below in your final answer. It is only provided to show formatting style.\n"
         "Return ONLY a valid JSON object like the example below. Do NOT include any prose, commentary, or explanation before or after it.\n\n"
         "=== Example (for structure only, not content!) ===\n\n"
-        "{\"research_questions\": \"...\","
+        "{\"title\": \"...\","
+        "  \"research_questions\": \"...\","
         "  \"hypotheses\": [\"hypothesis 1\", \"hypothesis 2\", \"...\"],"
         "  \"data\": \"...\","
         "  \"methods\": \"...\","
@@ -233,18 +238,14 @@ def clean_json(raw_text):
         return {}
 
 ################################################################################
-#                              Demo Usage/Testing                              #
+#                 Helper to List Files in Directory by Extention               #
 ################################################################################
-
-# Directory holding PDFs
-import os
-import json
 
 def list_files_in_directory(directory_path, extension = ".pdf"):
     try:
         files = os.listdir(directory_path)
         return [directory_path+"/"+f for f in files 
-                if os.path.isfile(os.path.join(directory_path, f)) and f.lower().endswith('.pdf')]
+                if os.path.isfile(os.path.join(directory_path, f)) and f.lower().endswith(extension)]
     except FileNotFoundError:
         return []
 
@@ -276,14 +277,14 @@ for pdf in pdfs:
 
 
 # # Single shot
-# pdf_text = extract_pdf_text_clean("/Users/christopherschwarz/Downloads/science.add8424.pdf")
+# pdf_text = extract_pdf_text_clean("/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16/Clinton_etal_2020.pdf")
 # 
 # # Remove references
 # clean_text = strip_citations_and_references(pdf_text)
 # 
 # # Run model
 # start_time = time.time()
-# raw_responses = summarize_structured(clean_text, model = "qwen3:8b")
+# raw_responses = summarize_structured(clean_text[0:30000], model = "qwen3:8b")
 # end_time = time.time()
 # elapsed = end_time - start_time
 # 

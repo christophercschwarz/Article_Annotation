@@ -6,7 +6,35 @@
 # Purpose: Take article .json summaries and save as DOCX format.               #
 ################################################################################
 
-directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_15"
+# Directory path to read from
+directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16"
+
+# Extension to be rendered to a doc, likely either .json or _enriched.json
+file_stub = "_enriched.json"
+
+# More advanced usage; subsetting, combining, light formatting
+contents <- c("title",
+              "authors",
+              "publication_date",
+              "doi",
+              "concepts",
+              "abstract",
+              "research_questions",
+              "hypotheses",
+              "data",
+              "methods",
+              "findings")
+
+collapse_list <- c("authors",
+                   "concepts")
+
+nest_list <- list("details" = c("title",
+                                "authors",
+                                "publication_date",
+                                "doi",
+                                "concepts"))
+
+test_json <- fromJSON("/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16/Green_etal_2020_enriched.json")
 
 ################################################################################
 #                                Load Packages                                 #
@@ -16,6 +44,39 @@ library(officer)
 library(jsonlite)
 library(dplyr)
 library(stringr)
+
+################################################################################
+#                    Helper to Collapse Fields to single string                #
+################################################################################
+
+test_json
+
+collapse_fields <- function(json, elements){
+  
+  for(element in elements){
+    
+    json[[element]] <- paste(json[[element]], collapse = ", ")
+    
+  }
+  
+  json
+  
+}
+
+collapse_fields(test_json, "authors")
+
+################################################################################
+#                     Helper to nest fields into one header                    #
+################################################################################
+
+# For each entry in element_lists, the elements of that list will be combined
+#  under that new header
+
+nest_fields <- function(json, element_lists){
+  
+  
+  
+}
 
 ################################################################################
 #                               Conversion Function                            #
@@ -42,7 +103,6 @@ json_to_doc <- function(json_path){
     if (is.character(section_content) && length(section_content) > 1) {
       
       # If the section is a character vector of length > 1, treat as list
-      #doc <- body_add_list(doc, section_content, ordered = FALSE)
       
       for(item in section_content){
         
@@ -72,7 +132,7 @@ json_to_doc <- function(json_path){
 ################################################################################
 
 articles <- list.files(directory_path, full.names = TRUE)
-articles <- articles[grepl(".json",articles)]
+articles <- articles[grepl(file_stub,articles)]
 
 for(article in articles){
   
