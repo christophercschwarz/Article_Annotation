@@ -17,7 +17,7 @@
 # Input: Directory of pdfs to be summarized (i.e. article1.pdf, article2.pdf)
 # Output: .json summaries of the pdfs in the same directory (i.e. article1.json)
 
-directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16"
+directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_17"
 
 ################################################################################
 #                               Required Packages                              #
@@ -151,14 +151,20 @@ def summarize_structured(text, model="qwen3:0.6b", max_tokens=32768):
     """
     json_prompt_template = (
         "You are a research assistant. From the following academic article, extract a structured summary covering these fields.\n"
-        "- title: The title of the academic article."
+        "- doi: The DOI of the article, if listed.\n"
+        "- title: The title of the academic article.\n"
+        "- authors: The authors of the article.\n"
+        "- abstract: The article abstract, almost always the first paragraph of the paper.\n"
         "- research_questions: What research questions are the authors addressing?\n"
         "- hypotheses: What hypotheses do they formally propose?\n"
         "- data: Describe the data used in the analysis (years, geography, unit of analysis, dataset size, sources).\n"
         "- methods: Describe the statistical methods used and design decisions such as control variables.\n"
         "- findings: What did the authors find? What resuslts do they discuss?\n\n"
         "When writing each field, ensure:\n"
-        "- title is the exact title of the article."
+        "- doi is the exact doi of the article.\n"
+        "- title is the exact title of the article.\n"
+        "- abstract is the exact abstract of the artice.\n"
+        "- authors include only names, concatenated into a single string.\n"
         "- research_questions contains exact or paraphrased questions from the introduction or abstract.\n"
         "- hypotheses only includes explicit predictions or testable claims declared as hypotheses to be tested. If none are stated, return an empty string.\n"
         "- data lists year(s), platform, dataset size, unit of analysis, and source, if stated.\n"
@@ -182,7 +188,10 @@ def summarize_structured(text, model="qwen3:0.6b", max_tokens=32768):
         "DO NOT include any content from the example below in your final answer. It is only provided to show formatting style.\n"
         "Return ONLY a valid JSON object like the example below. Do NOT include any prose, commentary, or explanation before or after it.\n\n"
         "=== Example (for structure only, not content!) ===\n\n"
-        "{\"title\": \"...\","
+        "{\"doi\": \"...\","
+        "  \"title\": \"...\","
+        "  \"authors\": \"...\","
+        "  \"abstract\": \"...\","
         "  \"research_questions\": \"...\","
         "  \"hypotheses\": [\"hypothesis 1\", \"hypothesis 2\", \"...\"],"
         "  \"data\": \"...\","

@@ -7,7 +7,7 @@
 ################################################################################
 
 # Directory path to read from
-directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16"
+directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_17"
 
 # Extension to be rendered to a doc, likely either .json or _enriched.json
 file_stub = "_enriched.json"
@@ -20,8 +20,6 @@ contents <- c("abstract",
               "data",
               "methods",
               "findings")
-
-# collapse_list <- c("authors")
 
 ################################################################################
 #                                Load Packages                                 #

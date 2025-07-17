@@ -10,7 +10,7 @@
 # Input: Directory of jsons to be enriched (i.e. article1.json, article2.json)
 # Output: .jsons enriched with OpenAlex in the same directory (i.e. article1.json)
 
-directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16"
+directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_17"
 
 ################################################################################
 #                               Required Packages                              #
@@ -48,6 +48,8 @@ def list_files_in_directory(directory_path, extension = ".pdf"):
 #                                 Query OpenAlex                               #
 ################################################################################
 
+# Heavily limited response for task simplicity
+
 def fetch_openalex_paginated(n_max=1000, search_query=None, filter_query=None, sort_by="relevance_score:desc"):
     url = "https://api.openalex.org/works"
     per_page = 200
@@ -75,22 +77,22 @@ def fetch_openalex_paginated(n_max=1000, search_query=None, filter_query=None, s
         for r in results:
             all_records.append({
                 "title": r.get("display_name"),
-                 "abstract": " ".join(
-                    sorted(r.get("abstract_inverted_index", {}), key=lambda k: r["abstract_inverted_index"][k][0])
-                ) if r.get("abstract_inverted_index") else None,
-                "landing_page_url": safe_get(r, ["primary_location", "landing_page_url"]),
-                "is_oa": safe_get(r, ["primary_location", "source","is_oa"]),
+                #  "abstract": " ".join(
+                #     sorted(r.get("abstract_inverted_index", {}), key=lambda k: r["abstract_inverted_index"][k][0])
+                # ) if r.get("abstract_inverted_index") else None,
+                # "landing_page_url": safe_get(r, ["primary_location", "landing_page_url"]),
+                # "is_oa": safe_get(r, ["primary_location", "source","is_oa"]),
                 "doi": r.get("doi"),
                 "cited_by_count": r.get("cited_by_count"),
                 "referenced_works_count": r.get("referenced_works_count"),
                 "publication_date": r.get("publication_date"),
-                "type": r.get("type"),
-                "journal": safe_get(r, ["primary_location", "source", "display_name"]),
-                "oa_url": safe_get(r, ["open_access", "oa_url"]),
-                "pdf_url": safe_get(r, ["primary_location", "pdf_url"]),
-                "concepts": [c["display_name"] for c in r.get("concepts", [])],
-                "authors": [a["author"]["display_name"] for a in r.get("authorships", [])],
-                "openalex_id": r.get("id")
+                # "type": r.get("type"),
+                 "journal": safe_get(r, ["primary_location", "source", "display_name"]),
+                # "oa_url": safe_get(r, ["open_access", "oa_url"]),
+                # "pdf_url": safe_get(r, ["primary_location", "pdf_url"]),
+                # "concepts": [c["display_name"] for c in r.get("concepts", [])],
+                # "authors": [a["author"]["display_name"] for a in r.get("authorships", [])],
+                # "openalex_id": r.get("id")
             })
 
         if not cursor or not results:
