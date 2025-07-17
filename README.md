@@ -1,1 +1,1 @@
-Simple functions for the structured summarizing of scientific articles using local LLMs. Requires Ollama.
+Simple functions for the structured summarizing of scientific articles using local LLMs, potentially enriched with data from OpenAlex, and rendering the results as human readable documents. Requires Ollama.
