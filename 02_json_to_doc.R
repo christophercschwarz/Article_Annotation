@@ -12,29 +12,16 @@ directory_path = "/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_
 # Extension to be rendered to a doc, likely either .json or _enriched.json
 file_stub = "_enriched.json"
 
-# More advanced usage; subsetting, combining, light formatting
-contents <- c("title",
-              "authors",
-              "publication_date",
-              "doi",
-              "concepts",
-              "abstract",
+
+# More advanced usage; subsetting, combining, light formatting; no touchy
+contents <- c("abstract",
               "research_questions",
               "hypotheses",
               "data",
               "methods",
               "findings")
 
-collapse_list <- c("authors",
-                   "concepts")
-
-nest_list <- list("details" = c("title",
-                                "authors",
-                                "publication_date",
-                                "doi",
-                                "concepts"))
-
-test_json <- fromJSON("/Users/christopherschwarz/Dropbox/Side_Quests/Nagler_Articles_2025_07_16/Green_etal_2020_enriched.json")
+# collapse_list <- c("authors")
 
 ################################################################################
 #                                Load Packages                                 #
@@ -49,8 +36,6 @@ library(stringr)
 #                    Helper to Collapse Fields to single string                #
 ################################################################################
 
-test_json
-
 collapse_fields <- function(json, elements){
   
   for(element in elements){
@@ -63,18 +48,22 @@ collapse_fields <- function(json, elements){
   
 }
 
-collapse_fields(test_json, "authors")
-
 ################################################################################
-#                     Helper to nest fields into one header                    #
+#                        Helper to make a Pseudo-citation                      #
 ################################################################################
 
-# For each entry in element_lists, the elements of that list will be combined
-#  under that new header
-
-nest_fields <- function(json, element_lists){
+make_citation <- function(json){
   
+  authors <- collapse_fields(json, "authors")
   
+  json$citation <- paste(authors$authors,
+                        json$publication_date,
+                        json$title,
+                        json$journal,
+                        json$doi,
+                        sep = "; ")
+  
+  json
   
 }
 
@@ -82,10 +71,36 @@ nest_fields <- function(json, element_lists){
 #                               Conversion Function                            #
 ################################################################################
 
-json_to_doc <- function(json_path){
+json_to_doc <- function(json_path, subset = NULL, to_combine = NULL, make_citation = TRUE){
   
   # Read in json
   json <- fromJSON(json_path)
+  
+  # Combine declared fields
+  if(!is.null(to_combine)){
+    
+    for(i in to_combine){
+      
+      json <- collapse_fields(json, i)
+      
+    }
+    
+  }
+  
+  # Make citation?
+  if(make_citation){
+    
+    subset <- c("citation",subset)
+    json <- make_citation(json)
+    
+  }
+
+  # Subset
+  if(!is.null(subset)){
+    
+    json <- json[subset]
+    
+  }
   
   # Initialize empty doc
   doc <- read_docx()
@@ -136,7 +151,9 @@ articles <- articles[grepl(file_stub,articles)]
 
 for(article in articles){
   
-  json_to_doc(article)
+  json_to_doc(article,
+              subset = contents,
+              to_combine = collapse_list)
   
 }
 
